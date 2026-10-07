@@ -1,45 +1,31 @@
+
 import { useEffect, useState } from "react";
 
 function App() {
-    // Danh sách sinh viên
     const [students, setStudents] = useState([]);
-
-    // Dữ liệu form
     const [studentId, setStudentId] = useState("");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [editingId, setEditingId] = useState(null);
 
-    // URL Backend
-    const API_URL =
-        "https://expert-umbrella-v65pxr7946p4f66j6-5000.app.github.dev/api/students";
+    const API_URL = "http://localhost:5000/api/students";
 
-
-    // =========================
-    // CÂU 47: GET danh sách sinh viên
-    // =========================
-    const getStudents = () => {
+    // Lấy danh sách sinh viên
+    function getStudents() {
         fetch(API_URL)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Không thể lấy danh sách sinh viên");
-                }
-
+            .then(function(response) {
                 return response.json();
             })
-            .then((data) => {
+            .then(function(data) {
                 setStudents(data);
             })
-            .catch((error) => {
-                console.error("Lỗi:", error);
+            .catch(function(error) {
+                console.log(error);
             });
-    };
+    }
 
-
-    // =========================
-    // CÂU 49: POST thêm sinh viên
-    // =========================
-    const addStudent = () => {
-
+    // Thêm sinh viên
+    function addStudent() {
         if (studentId === "" || name === "" || email === "") {
             alert("Vui lòng nhập đầy đủ thông tin!");
             return;
@@ -47,158 +33,248 @@ function App() {
 
         fetch(API_URL, {
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json"
             },
-
             body: JSON.stringify({
                 studentId: studentId,
                 name: name,
                 email: email
             })
         })
-            .then((response) => {
+            .then(function(response) {
                 return response.json();
             })
-            .then((data) => {
-
-                console.log("Đã thêm sinh viên:", data);
-
+            .then(function() {
                 alert("Thêm sinh viên thành công!");
-
-                // Xóa dữ liệu trong form
-                setStudentId("");
-                setName("");
-                setEmail("");
-
-                // Cập nhật lại danh sách
+                clearForm();
                 getStudents();
             })
-            .catch((error) => {
-                console.error("Lỗi:", error);
-                alert("Có lỗi xảy ra khi thêm sinh viên!");
+            .catch(function(error) {
+                console.log(error);
+                alert("Có lỗi khi thêm sinh viên!");
             });
-    };
+    }
 
+    // Cập nhật sinh viên
+    function updateStudent() {
+        if (studentId === "" || name === "" || email === "") {
+            alert("Vui lòng nhập đầy đủ thông tin!");
+            return;
+        }
 
-    // Tự động lấy danh sách khi mở trang
-    useEffect(() => {
+        fetch(API_URL + "/" + editingId, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                studentId: studentId,
+                name: name,
+                email: email
+            })
+        })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function() {
+                alert("Cập nhật thành công!");
+                clearForm();
+                getStudents();
+            })
+            .catch(function(error) {
+                console.log(error);
+                alert("Có lỗi khi cập nhật!");
+            });
+    }
+
+    // Xóa sinh viên
+    function deleteStudent(id) {
+        if (!window.confirm("Bạn có chắc muốn xóa sinh viên này không?")) {
+            return;
+        }
+
+        fetch(API_URL + "/" + id, {
+            method: "DELETE"
+        })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function() {
+                alert("Xóa sinh viên thành công!");
+                getStudents();
+            })
+            .catch(function(error) {
+                console.log(error);
+                alert("Có lỗi khi xóa!");
+            });
+    }
+
+    // Đưa dữ liệu lên form để sửa
+    function editStudent(student) {
+        setStudentId(student.studentId);
+        setName(student.name);
+        setEmail(student.email);
+        setEditingId(student._id);
+    }
+
+    // Xóa form
+    function clearForm() {
+        setStudentId("");
+        setName("");
+        setEmail("");
+        setEditingId(null);
+    }
+
+    useEffect(function() {
         getStudents();
     }, []);
 
-
     return (
-        <div style={{
-            width: "800px",
-            margin: "30px auto",
-            fontFamily: "Arial"
-        }}>
+        <div
+            style={{
+                width: "800px",
+                margin: "30px auto",
+                fontFamily: "Arial"
+            }}
+        >
+            <h1>QUẢN LÝ SINH VIÊN - Version 2.0</h1>
 
-            <h1>QUẢN LÝ SINH VIÊN</h1>
+            <h2>
+                {editingId ? "Cập nhật sinh viên" : "Thêm sinh viên"}
+            </h2>
 
+            <input
+                type="text"
+                placeholder="MSSV"
+                value={studentId}
+                onChange={function(e) {
+                    setStudentId(e.target.value);
+                }}
+                style={{
+                    padding: "10px",
+                    margin: "5px",
+                    width: "200px"
+                }}
+            />
 
-            {/* =========================
-                CÂU 48: FORM NHẬP SINH VIÊN
-            ========================= */}
+            <input
+                type="text"
+                placeholder="Họ tên"
+                value={name}
+                onChange={function(e) {
+                    setName(e.target.value);
+                }}
+                style={{
+                    padding: "10px",
+                    margin: "5px",
+                    width: "200px"
+                }}
+            />
 
-            <h2>Thêm sinh viên</h2>
+            <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={function(e) {
+                    setEmail(e.target.value);
+                }}
+                style={{
+                    padding: "10px",
+                    margin: "5px",
+                    width: "200px"
+                }}
+            />
 
-            <div>
+            <br />
 
-                <input
-                    type="text"
-                    placeholder="MSSV"
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value)}
-                    style={{
-                        padding: "10px",
-                        margin: "5px",
-                        width: "200px"
-                    }}
-                />
+            {editingId ? (
+                <div>
+                    <button
+                        onClick={updateStudent}
+                        style={{
+                            padding: "10px 20px",
+                            margin: "10px 5px"
+                        }}
+                    >
+                        Cập nhật
+                    </button>
 
-                <input
-                    type="text"
-                    placeholder="Họ tên"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    style={{
-                        padding: "10px",
-                        margin: "5px",
-                        width: "200px"
-                    }}
-                />
-
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={{
-                        padding: "10px",
-                        margin: "5px",
-                        width: "200px"
-                    }}
-                />
-
-                <br />
-
+                    <button
+                        onClick={clearForm}
+                        style={{
+                            padding: "10px 20px",
+                            margin: "10px 5px"
+                        }}
+                    >
+                        Hủy
+                    </button>
+                </div>
+            ) : (
                 <button
                     onClick={addStudent}
                     style={{
                         padding: "10px 20px",
-                        margin: "10px 5px",
-                        cursor: "pointer"
+                        margin: "10px 5px"
                     }}
                 >
                     Thêm sinh viên
                 </button>
-
-            </div>
-
-
-            {/* =========================
-                CÂU 47: DANH SÁCH SINH VIÊN
-            ========================= */}
+            )}
 
             <h2>Danh sách sinh viên</h2>
 
             {students.length === 0 ? (
-
                 <p>Chưa có sinh viên.</p>
-
             ) : (
+                students.map(function(student) {
+                    return (
+                        <div
+                            key={student._id}
+                            style={{
+                                border: "1px solid #ccc",
+                                padding: "15px",
+                                marginBottom: "10px"
+                            }}
+                        >
+                            <p>
+                                <b>MSSV:</b> {student.studentId}
+                            </p>
 
-                students.map((student) => (
+                            <p>
+                                <b>Họ tên:</b> {student.name}
+                            </p>
 
-                    <div
-                        key={student._id}
-                        style={{
-                            border: "1px solid #ccc",
-                            padding: "15px",
-                            marginBottom: "10px"
-                        }}
-                    >
+                            <p>
+                                <b>Email:</b> {student.email}
+                            </p>
 
-                        <p>
-                            <b>MSSV:</b> {student.studentId}
-                        </p>
+                            <button
+                                onClick={function() {
+                                    editStudent(student);
+                                }}
+                                style={{
+                                    padding: "8px 15px",
+                                    marginRight: "10px"
+                                }}
+                            >
+                                Sửa
+                            </button>
 
-                        <p>
-                            <b>Họ tên:</b> {student.name}
-                        </p>
-
-                        <p>
-                            <b>Email:</b> {student.email}
-                        </p>
-
-                    </div>
-
-                ))
-
+                            <button
+                                onClick={function() {
+                                    deleteStudent(student._id);
+                                }}
+                                style={{
+                                    padding: "8px 15px"
+                                }}
+                            >
+                                Xóa
+                            </button>
+                        </div>
+                    );
+                })
             )}
-
         </div>
     );
 }

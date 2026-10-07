@@ -1,0 +1,16 @@
+services:
+  backend:
+    build:
+      context: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+
+  frontend:
+    build:
+      context: ./client
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend

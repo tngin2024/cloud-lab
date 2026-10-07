@@ -3,13 +3,12 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const Student = require("../models/Student");
+const Student = require("./models/Student");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
 
 // API kiểm tra
 app.get("/api/hello", (req, res) => {
@@ -18,11 +17,11 @@ app.get("/api/hello", (req, res) => {
     });
 });
 
-
 // Câu 36: GET - Lấy danh sách sinh viên
 app.get("/api/students", async (req, res) => {
     try {
         const students = await Student.find();
+
         res.json(students);
     } catch (error) {
         res.status(500).json({
@@ -31,7 +30,6 @@ app.get("/api/students", async (req, res) => {
         });
     }
 });
-
 
 // Câu 37: POST - Thêm sinh viên
 app.post("/api/students", async (req, res) => {
@@ -46,7 +44,6 @@ app.post("/api/students", async (req, res) => {
         });
     }
 });
-
 
 // Câu 38: PUT - Cập nhật sinh viên
 app.put("/api/students/:id", async (req, res) => {
@@ -75,13 +72,10 @@ app.put("/api/students/:id", async (req, res) => {
     }
 });
 
-
 // Câu 39: DELETE - Xóa sinh viên
 app.delete("/api/students/:id", async (req, res) => {
     try {
-        const student = await Student.findByIdAndDelete(
-            req.params.id
-        );
+        const student = await Student.findByIdAndDelete(req.params.id);
 
         if (!student) {
             return res.status(404).json({
@@ -101,7 +95,6 @@ app.delete("/api/students/:id", async (req, res) => {
     }
 });
 
-
 // Kết nối MongoDB Atlas
 const PORT = process.env.PORT || 5000;
 
@@ -110,7 +103,7 @@ mongoose.connect(process.env.MONGODB_URI)
         console.log("MongoDB Atlas kết nối thành công!");
 
         app.listen(PORT, () => {
-            console.log(`Server đang chạy tại http://localhost:${PORT}`);
+            console.log("Server đang chạy tại http://localhost:" + PORT);
         });
     })
     .catch((error) => {

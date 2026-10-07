@@ -1,0 +1,14 @@
+services:
+  backend:
+    image: tngin2024/mern-backend:1.0
+    ports:
+      - "5000:5000"
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+
+  frontend:
+    image: tngin2024/mern-frontend:2.0
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend

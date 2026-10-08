@@ -1,4 +1,4 @@
 # Cloud Computing Laboratory
-Student Name:
-Student ID:
-Class:
+Student Name: Lâm Thái Nguyên 
+Student ID:236974
+Class: DH23TIN08
